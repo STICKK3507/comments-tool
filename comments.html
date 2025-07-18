@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>评论整理工具</title>
+<style>
+  body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: auto; }
+  nav { margin-bottom: 20px; }
+  nav a { margin-right: 15px; color: blue; cursor: pointer; text-decoration: underline; }
+  section { margin-bottom: 40px; }
+  .comment { margin-bottom: 15px; }
+  .line { display: flex; align-items: center; margin: 3px 0; }
+  .lang-label { width: 40px; font-weight: bold; }
+  button.copy-btn { margin-left: 10px; padding: 2px 8px; font-size: 12px; cursor: pointer; }
+  @media(max-width:600px) {
+    body { padding: 10px; }
+    .lang-label { width: 30px; font-size: 14px; }
+    button.copy-btn { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>评论整理工具</h1>
+
+<nav id="productNav">
+  <!-- 产品列表导航 -->
+</nav>
+
+<div id="commentsContainer">
+  <!-- 产品评论内容 -->
+</div>
+
+<script>
+// 这里是你的数据结构，按产品分组，每个产品有分类，分类下有多条评论，每条评论包含中/英/西
+const data = [
+  {
+    productName: "1.4 TLEDB短袖衬衫&TLMEU长袖衬衫",
+    categories: [
+      {
+        categoryName: "价格&引导评论",
+        comments: [
+          {
+            zh: "这个会打折吗？我的购物车已经准备好了！🛒🔥",
+            en: "Does it go on sale? My cart is ready! 🛒🔥",
+            es: "¿Está en oferta? ¡Mi carrito está listo! 🛒🔥"
+          },
+          {
+            zh: "等等……这是经济实惠还是我快破产了？😂",
+            en: "Wait… is this budget-friendly or am I about to go broke? 😂",
+            es: "Espera... ¿esto es asequible o estoy a punto de quedarme en quiebra? 😂"
+          }
+        ]
+      },
+      {
+        categoryName: "颜色",
+        comments: [
+          {
+            zh: "救命，我选不出颜色！你最喜欢哪个？😭",
+            en: "HELP, I can’t pick a color! Which one is your fave? 😭",
+            es: "¡AYUDA, no puedo elegir un color! ¿Cuál es tu favorito? 😭"
+          },
+          {
+            zh: "这些颜色太美了！粉色系还是中性色，什么感觉？👀",
+            en: "These colors are SO aesthetic! Pastels or neutrals, what’s the vibe? 👀",
+            es: "¡Estos colores son TAN estéticos! ¿Pasteles o neutros, cuál es la vibra? 👀"
+          }
+        ]
+      }
+    ]
+  },
+  // 你可以在这里添加更多产品
+];
+
+// 生成产品导航
+const nav = document.getElementById('productNav');
+data.forEach((product, idx) => {
+  const a = document.createElement('a');
+  a.textContent = product.productName;
+  a.href = `#product-${idx}`;
+  nav.appendChild(a);
+});
+
+// 生成评论内容
+const container = document.getElementById('commentsContainer');
+data.forEach((product, pIdx) => {
+  const section = document.createElement('section');
+  section.id = `product-${pIdx}`;
+  const h2 = document.createElement('h2');
+  h2.textContent = product.productName;
+  section.appendChild(h2);
+
+  product.categories.forEach(category => {
+    const h3 = document.createElement('h3');
+    h3.textContent = category.categoryName;
+    section.appendChild(h3);
+
+    category.comments.forEach(comment => {
+      const div = document.createElement('div');
+      div.className = 'comment';
+
+      // 中文行
+      const zhLine = document.createElement('div');
+      zhLine.className = 'line';
+      const zhLabel = document.createElement('span');
+      zhLabel.className = 'lang-label';
+      zhLabel.textContent = '中';
+      const zhText = document.createElement('span');
+      zhText.textContent = comment.zh;
+      zhLine.appendChild(zhLabel);
+      zhLine.appendChild(zhText);
+      div.appendChild(zhLine);
+
+      // 英文行
+      const enLine = document.createElement('div');
+      enLine.className = 'line';
+      const enLabel = document.createElement('span');
+      enLabel.className = 'lang-label';
+      enLabel.textContent = '英';
+      const enText = document.createElement('span');
+      enText.textContent = comment.en;
+      enText.id = `en-${pIdx}-${Math.random().toString(36).substr(2, 9)}`; // 唯一id
+      const enBtn = document.createElement('button');
+      enBtn.className = 'copy-btn';
+      enBtn.textContent = '复制';
+      enBtn.onclick = () => copyText(comment.en);
+      enLine.appendChild(enLabel);
+      enLine.appendChild(enText);
+      enLine.appendChild(enBtn);
+      div.appendChild(enLine);
+
+      // 西语行
+      const esLine = document.createElement('div');
+      esLine.className = 'line';
+      const esLabel = document.createElement('span');
+      esLabel.className = 'lang-label';
+      esLabel.textContent = '西';
+      const esText = document.createElement('span');
+      esText.textContent = comment.es;
+      esText.id = `es-${pIdx}-${Math.random().toString(36).substr(2, 9)}`;
+      const esBtn = document.createElement('button');
+      esBtn.className = 'copy-btn';
+      esBtn.textContent = '复制';
+      esBtn.onclick = () => copyText(comment.es);
+      esLine.appendChild(esLabel);
+      esLine.appendChild(esText);
+      esLine.appendChild(esBtn);
+      div.appendChild(esLine);
+
+      section.appendChild(div);
+    });
+  });
+
+  container.appendChild(section);
+});
+
+// 复制文本函数
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    // 现代浏览器
+    navigator.clipboard.writeText(text).then(() => alert("已复制到剪贴板"));
+  } else {
+    // 兼容老浏览器
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";  // 避免滚动条跳动
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+
+    try {
+      const successful = document.execCommand('copy');
+      if (successful) alert("已复制到剪贴板");
+      else alert("复制失败，请手动复制");
+    } catch (err) {
+      alert("复制失败，请手动复制");
+    }
+
+    document.body.removeChild(textArea);
+  }
+}
+</script>
+
+</body>
+</html>
